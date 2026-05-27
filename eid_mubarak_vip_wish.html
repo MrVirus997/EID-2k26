@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Mubarak Meri Jaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #aa7c11;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            background: #020111; /* Deep midnight space */
+            overflow: hidden; /* Prevent scrolling, full app experience */
+            color: #ffffff;
+            touch-action: none; /* Prevent pull-to-refresh on mobile */
+        }
+
+        /* Magical Canvas Background */
+        #magic-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        .urdu-text { font-family: 'Amiri', serif; }
+        .romantic-font { font-family: 'Great Vibes', cursive; }
+        .royal-font { font-family: 'Cinzel', serif; }
+
+        .gold-text-gradient {
+            background: linear-gradient(to right, var(--gold-light), var(--gold-primary), var(--gold-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0px 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Background Gradient Overlays */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(26, 11, 46, 0.8) 0%, rgba(2, 1, 17, 1) 100%);
+            z-index: 0;
+        }
+
+        /* Intro Screen - Glowing Moon */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 1, 17, 0.95);
+            backdrop-filter: blur(10px);
+            transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+        }
+
+        .moon-container {
+            position: relative;
+            cursor: pointer;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float-moon 4s ease-in-out infinite;
+        }
+
+        .crescent-moon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            box-shadow: inset -20px -5px 0 0 var(--gold-primary);
+            filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.8));
+            transition: all 0.5s ease;
+        }
+
+        .moon-container:hover .crescent-moon {
+            box-shadow: inset -25px -10px 0 0 var(--gold-light);
+            filter: drop-shadow(0 0 50px rgba(243, 229, 171, 1));
+            transform: scale(1.05);
+        }
+
+        .moon-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        /* Main Content Screen */
+        #main-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in;
+            padding: 20px;
+            overflow-y: auto; /* Allow scrolling inside if screen is small */
+        }
+
+        #main-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Glassmorphism Premium Card */
+        .premium-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(50px);
+            transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        #main-screen.active .premium-card {
+            transform: translateY(0);
+        }
+
+        /* Rotating Mandala Background */
+        .mandala-bg {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0 L55 45 L100 50 L55 55 L50 100 L45 55 L0 50 L45 45 Z' fill='rgba(212, 175, 55, 0.03)' stroke='rgba(212, 175, 55, 0.05)' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-size: 150px 150px;
+            animation: rotate-slow 60s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes float-moon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 1; }
+        }
+
+        @keyframes rotate-slow {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+        }
+
+        .typewriter-text {
+            display: inline;
+            border-right: 2px solid var(--gold-primary);
+            white-space: pre-wrap;
+            animation: blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--gold-primary); }
+        }
+
+        /* Beautiful Button */
+        .btn-eidi {
+            background: linear-gradient(45deg, #8a2387, #e94057, #f27121);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(233, 64, 87, 0.3);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .btn-eidi::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-eidi:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(233, 64, 87, 0.5);
+        }
+
+        .btn-eidi:hover::before {
+            left: 100%;
+        }
+
+        /* Lanterns */
+        .lantern-container {
+            position: fixed;
+            top: -20px;
+            z-index: 15;
+            animation: swing 3s ease-in-out infinite alternate;
+            transform-origin: top center;
+        }
+        .lantern-container.left { left: 5%; animation-delay: 0s; }
+        .lantern-container.right { right: 5%; animation-delay: 1.5s; }
+
+        @keyframes swing {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background overlay and Canvas -->
+    <div class="bg-overlay"></div>
+    <canvas id="magic-canvas"></canvas>
+
+    <!-- Hanging Lanterns -->
+    <div class="lantern-container left">
+        <div class="w-1 h-20 bg-gradient-to-b from-transparent to-yellow-500/50 mx-auto"></div>
+        <i class="fas fa-lantern text-4xl text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]"></i>
+    </div>
+    <div class="lantern-container right">
+        <div class="w-1 h-32 bg-gradient-to-b from-transparent to-yellow-500/50 mx-auto"></div>
+        <i class="fas fa-lantern text-3xl text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]"></i>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_51cbfa7b49.mp3?filename=beautiful-romantic-piano-123042.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- STEP 1: The Magical Intro Screen -->
+    <div id="intro-screen">
+        <div class="text-center mb-10 px-4">
+            <h1 class="romantic-font text-5xl md:text-6xl text-white mb-4 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">A Special Surprise...</h1>
+            <p class="text-gray-300 font-light tracking-widest text-sm md:text-base animate-pulse">TURN ON VOLUME & TOUCH THE MOON</p>
+        </div>
+
+        <div class="moon-container" onclick="unlockSurprise()">
+            <div class="moon-glow"></div>
+            <div class="crescent-moon"></div>
+        </div>
+
+        <div class="mt-12 text-center">
+            <p class="urdu-text text-2xl gold-text-gradient">میری چاند کے لیے</p>
+            <p class="text-xs text-gray-500 mt-2">(For my moon)</p>
+        </div>
+    </div>
+
+    <!-- STEP 2: The Main VIP Card Screen -->
+    <div id="main-screen">
+        <div class="premium-card">
+            <!-- Mandala Background inside card -->
+            <div class="mandala-bg"></div>
+
+            <div class="relative z-10 flex flex-col items-center">
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <h1 class="urdu-text text-6xl md:text-7xl gold-text-gradient font-bold mb-2">عید مبارک</h1>
+                    <h2 class="royal-font text-2xl md:text-3xl text-white tracking-widest uppercase">Eid Mubarak, My Love</h2>
+                </div>
+
+                <!-- Heart Divider -->
+                <div class="flex items-center justify-center space-x-4 w-full mb-8">
+                    <div class="h-px bg-gradient-to-r from-transparent via-yellow-500 to-yellow-500 w-1/3"></div>
+                    <i class="fas fa-heart text-red-500 text-2xl" style="animation: heartbeat 1.2s infinite;"></i>
+                    <div class="h-px bg-gradient-to-l from-transparent via-yellow-500 to-yellow-500 w-1/3"></div>
+                </div>
+
+                <!-- Typewriter Message Container -->
+                <div class="text-center min-h-[180px] w-full px-2 md:px-6 mb-8">
+                    <p id="shayari-text" class="text-lg md:text-xl text-gray-200 leading-loose font-light italic"></p>
+                </div>
+
+                <!-- Footer / From -->
+                <div class="text-center mt-4 mb-8 opacity-0 transition-opacity duration-1000" id="author-signature">
+                    <p class="text-sm text-gray-400 uppercase tracking-widest mb-1">Yours forever,</p>
+                    <p class="romantic-font text-4xl gold-text-gradient">[Your Name Here]</p>
+                    <!-- YAHAN APNA NAAM LIKHEIN ^^^ -->
+                </div>
+
+                <!-- Interactive Button -->
+                <div class="opacity-0 transition-opacity duration-1000 transform translate-y-4" id="eidi-button-container">
+                    <button class="btn-eidi flex items-center gap-3" onclick="claimEidi()">
+                        <i class="fas fa-gift"></i>
+                        Claim Your Eidi (Hugs & Kisses)
+                        <i class="fas fa-kiss-wink-heart"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Toggle -->
+    <button id="musicToggle" onclick="toggleMusic()" class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <i class="fas fa-music"></i>
+    </button>
+
+    <script>
+        // --- 1. Magical Canvas: Fireflies and Touch Trail ---
+        const canvas = document.getElementById('magic-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let trailParticles = [];
+        let mouse = { x: -100, y: -100 };
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Firefly Particle Class
+        class Firefly {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `rgba(212, 175, 55, ${Math.random() * 0.5 + 0.2})`; // Goldish
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 0.05 - 0.025;
+            }
+            update() {
+                this.x += this.speedX + Math.sin(this.angle) * 0.5;
+                this.y += this.speedY;
+                this.angle += this.spin;
+
+                if (this.x > width || this.x < 0) this.speedX *= -1;
+                if (this.y > height) this.y = 0;
+                if (this.y < 0) this.y = height;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#d4af37';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Mouse Trail Particle Class
+        class Trail {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.life = 1; // 100%
+                this.decay = Math.random() * 0.02 + 0.015;
+                // Random mix of gold and pink for trail
+                const colors = ['212,175,55', '233,64,87', '255,255,255'];
+                this.colorRGB = colors[Math.floor(Math.random() * colors.length)];
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                this.size *= 0.95; // shrink
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${this.colorRGB}, ${this.life})`;
+                ctx.fill();
+            }
+        }
+
+        // Initialize fireflies
+        for (let i = 0; i < 50; i++) particles.push(new Firefly());
+
+        // Track mouse/touch for magical trail
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+            for(let i=0; i<3; i++) trailParticles.push(new Trail(mouse.x, mouse.y));
+        });
+        window.addEventListener('touchmove', (e) => {
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+            for(let i=0; i<3; i++) trailParticles.push(new Trail(mouse.x, mouse.y));
+        }, {passive: true});
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw fireflies
+            particles.forEach(p => { p.update(); p.draw(); });
+
+            // Draw trails
+            for (let i = trailParticles.length - 1; i >= 0; i--) {
+                let p = trailParticles[i];
+                p.update();
+                p.draw();
+                if (p.life <= 0 || p.size <= 0.1) {
+                    trailParticles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // --- 2. Interaction Logic ---
+        const bgMusic = document.getElementById('bgMusic');
+        let musicPlaying = false;
+        let isOpened = false;
+
+        function toggleMusic() {
+            const btn = document.getElementById('musicToggle');
+            if (musicPlaying) {
+                bgMusic.pause();
+                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                btn.classList.remove('text-yellow-400');
+                btn.classList.add('text-white');
+            } else {
+                bgMusic.play();
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.classList.remove('text-white');
+                btn.classList.add('text-yellow-400');
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        function unlockSurprise() {
+            if (isOpened) return;
+            isOpened = true;
+
+            // Try playing music automatically
+            if (!musicPlaying) {
+                bgMusic.volume = 0.5;
+                let playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        musicPlaying = true;
+                        document.getElementById('musicToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
+                        document.getElementById('musicToggle').classList.add('text-yellow-400');
+                    }).catch(err => console.log("User interaction required for audio"));
+                }
+            }
+
+            // Explosion of gold confetti
+            confetti({
+                particleCount: 100,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#d4af37', '#f3e5ab', '#ffffff']
+            });
+
+            // Transition Screens
+            const intro = document.getElementById('intro-screen');
+            const main = document.getElementById('main-screen');
+
+            intro.style.transform = 'scale(1.5)';
+            intro.style.opacity = '0';
+            
+            setTimeout(() => {
+                intro.style.display = 'none';
+                main.classList.add('active');
+                
+                // Start Typewriter effect after card reveals
+                setTimeout(startTypewriter, 1000);
+            }, 1500);
+        }
+
+        // --- 3. Romantic Typewriter Effect ---
+        const messageLines = [
+            "Eid Mubarak, my purest soul... 🤍🌙",
+            "As the moon lights up the sky, my heart whispers your name in every prayer. ✨",
+            "",
+            "Aaj chaand ki roshni mein bas ek hi dua hai meri...",
+            "Faasle mit jaayein, aur tu paas ho aaj teri Eid meri. 🥀",
+            "",
+            "Thinking of you holding that keychain makes me smile... my heart is right there with yours. 🥺🤍",
+            "I promise to always be your safe space, your protector. 🫂",
+            "May you feel my invisible hand holding yours today. 🕊️",
+            "I love you, deeper than the sky itself. 🤍✨"
+        ];
+        
+        let lineIndex = 0;
+        let charIndex = 0;
+        const typingSpeed = 50; // ms per char
+        const lineDelay = 800; // ms between lines
+        const textElement = document.getElementById('shayari-text');
+
+        function startTypewriter() {
+            if (lineIndex < messageLines.length) {
+                let currentLine = messageLines[lineIndex];
+                
+                if (charIndex < currentLine.length) {
+                    // Append character
+                    textElement.innerHTML += currentLine.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(startTypewriter, typingSpeed);
+                } else {
+                    // Line finished
+                    textElement.innerHTML += '<br>';
+                    lineIndex++;
+                    charIndex = 0;
+                    setTimeout(startTypewriter, lineDelay);
+                }
+            } else {
+                // Typing finished, reveal footer and button
+                textElement.classList.remove('typewriter-text'); // stop cursor blinking
+                document.getElementById('author-signature').style.opacity = '1';
+                
+                setTimeout(() => {
+                    const btnContainer = document.getElementById('eidi-button-container');
+                    btnContainer.style.opacity = '1';
+                    btnContainer.classList.remove('translate-y-4');
+                }, 500);
+            }
+        }
+
+        // --- 4. Premium Eidi Button Effect ---
+        function claimEidi() {
+            // Heart and Gold explosion
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                // Left side hearts
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff0000', '#ff69b4', '#d4af37']
+                });
+                // Right side hearts
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff0000', '#ff69b4', '#d4af37']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // Change button text temporarily
+            const btn = document.querySelector('.btn-eidi');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-heart text-white animate-ping"></i> Sending my love...`;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
